@@ -36,6 +36,48 @@ def load_categories():
     return data.get("categories", [])
 
 
+# Path to the Markdown notes file
+NOTES_FILE = "notes.md"
+
+
+# Endpoint to get notes
+@app.route("/notes", methods=["GET"])
+def get_notes():
+    notes = load_notes()
+    return jsonify({"notes": notes})
+
+
+# Ensure the notes.md file exists
+if not os.path.exists(NOTES_FILE):
+    with open(NOTES_FILE, "w") as file:
+        file.write("")  # Initialize with empty content
+
+
+# Read notes from the file
+def load_notes():
+    if os.path.exists(NOTES_FILE):
+        with open(NOTES_FILE, "r") as file:
+            return file.read()
+    return ""
+
+
+# Save notes to the file
+def save_notes(content):
+    with open(NOTES_FILE, "w") as file:
+        file.write(content)
+
+
+# Endpoint to save notes
+@app.route("/notes", methods=["POST"])
+def save_notes_endpoint():
+    notes_content = request.json.get("notes", "")
+    if (
+        notes_content
+    ):  # Only save if there is content to avoid overwriting with empty data
+        save_notes(notes_content)
+    return jsonify({"status": "success"})
+
+
 # Serve the HTML page
 @app.route("/")
 def index():

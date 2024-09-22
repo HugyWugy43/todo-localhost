@@ -39,23 +39,35 @@
         <!-- Other tasks will be rendered here -->
       </ul>
       <h3>
-        Completed Tasks <button onclick="toggleCompletedTasks()">Toggle</button>
+        Completed Tasks
+        <button id="show-completed" onclick="showCompletedTasks()">
+          Show Completed
+        </button>
+        <button
+          id="hide-completed"
+          class="hidden"
+          onclick="hideCompletedTasks()"
+        >
+          Hide Completed
+        </button>
       </h3>
+      <div id="completed-tasks-container">
+        <ul id="completed-tasks-list">
+          <!-- Completed tasks will be rendered here -->
+        </ul>
+      </div>
       <div id="completed-tasks-container" style="display: none">
         <ul id="completed-tasks-list">
           <!-- Completed tasks will be rendered here -->
         </ul>
       </div>
       <div class="markdown-section">
-        <h2>Markdown Notes</h2>
-        <textarea
-          id="markdown-input"
-          placeholder="Write your markdown notes here..."
-        ></textarea>
-        <button class="sort-btn" onclick="renderMarkdown()">
-          Render Notes
+        <h2>Notes</h2>
+        <div id="markdown-container"></div>
+        <button id="edit-notes" onclick="editNotes()">Edit Notes</button>
+        <button id="done-editing" class="hidden" onclick="doneEditing()">
+          Done
         </button>
-        <div id="markdown-preview" class="markdown-preview"></div>
       </div>
     </div>
   </body>
