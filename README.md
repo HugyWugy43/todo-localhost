@@ -1,3 +1,4 @@
+
 # Todo List with Notes
 
 ## Overview
@@ -31,6 +32,7 @@ This is a web-based **Todo List** application that allows users to:
 - **JSON**: Storage for tasks with persistence across sessions.
 - **YAML**: Storage for task categories.
 - **Showdown.js**: A library for converting Markdown to HTML.
+- **Docker**: Containerize the app for consistent environment and easy deployment.
 - **Flexbox**: For clean, responsive task layout.
 
 ## Installation and Setup
@@ -40,7 +42,7 @@ This is a web-based **Todo List** application that allows users to:
 - Python 3.x
 - pip (Python package installer)
 
-### Setup Instructions
+### Setup Instructions (Flask)
 
 1. Clone the repository:
 
@@ -68,7 +70,30 @@ This is a web-based **Todo List** application that allows users to:
    python app.py
    ```
 
-5. Open your web browser and go to `http://localhost:42069` to use the Todo List app.
+5. Open your web browser and go to `http://localhost:4200` to use the Todo List app.
+
+### Docker Setup Instructions
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/MiConnell/todo-list-with-notes.git
+   cd todo-list-with-notes
+   ```
+
+2. Build the Docker image:
+
+   ```bash
+   docker build -t todo-app .
+   ```
+
+3. Run the Docker container:
+
+   ```bash
+   docker run -d -p 4200:4200 --name todo-app todo-app
+   ```
+
+4. Open your browser and go to `http://localhost:4200` to access the app.
 
 ### File Structure
 
@@ -109,7 +134,7 @@ This is a web-based **Todo List** application that allows users to:
 
 4. **View Completed Tasks**:
 
-   - You can toggle the visibility of **Completed Tasks** using the **Toggle** button.
+   - You can toggle the visibility of **Completed Tasks** using the **Show/Hide Completed** button.
    - Tasks will show the date they were completed next to their category.
 
 5. **Edit a Task**:
