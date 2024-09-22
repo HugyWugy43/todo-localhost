@@ -153,7 +153,6 @@ body {
     border: 1px solid #ddd;
     padding: 10px;
     border-radius: 5px;
-    white-space: pre-wrap;
   }
 
   .drag-over {
@@ -167,3 +166,42 @@ body {
     cursor: ns-resize;
     margin-bottom: 10px;
   }
+/* Scoped styling for Markdown-rendered content */
+#markdown-preview {
+  font-family: Arial, sans-serif;
+  color: #333;
+  line-height: 1.4;  /* Slightly closer to input spacing */
+  padding: 10px;
+}
+
+/* Reset list item styling in markdown preview */
+#markdown-preview ul, #markdown-preview ol {
+  list-style-type: disc;  /* Standard bullet points */
+  padding-left: 20px;     /* Indent the list */
+  margin: 0;              /* Remove bottom margin to match raw input spacing */
+}
+
+#markdown-preview li {
+  display: list-item;     /* Reset to default block-style list */
+  margin: 0;              /* Remove extra margins */
+  padding: 0;             /* Remove any padding */
+  border: none;           /* Remove any borders */
+  background: none;       /* Remove background colors */
+}
+
+/* Reset styling for links within the Markdown preview */
+#markdown-preview a {
+  color: #007bff; /* Link color */
+  text-decoration: underline; /* Underline links for clarity */
+  word-wrap: break-word; /* Ensure long URLs break and wrap */
+}
+
+#markdown-preview a:hover {
+  text-decoration: underline; /* Underline on hover */
+  color: #0056b3; /* Darker blue on hover */
+}
+
+/* Ensure that headers have minimal margins to match input spacing */
+#markdown-preview h1, #markdown-preview h2, #markdown-preview h3 {
+  margin: 0; /* No extra margin */
+}

@@ -1,20 +1,4 @@
 
-document.addEventListener("DOMContentLoaded", () => {
-    fetch("/tasks")
-        .then(response => response.json())
-        .then(data => {
-            tasks = data;
-            renderTasks();
-        })
-        .catch(error => console.error("Error fetching tasks:", error));
-
-    const markdownConverter = new showdown.Converter();
-    document.getElementById("render-markdown").addEventListener("click", () => {
-        const markdownInput = document.getElementById("markdown-input").value;
-        const html = markdownConverter.makeHtml(markdownInput);
-        document.getElementById("markdown-preview").innerHTML = html;
-    });
-});
 let tasks = [];
       let dividerIndex = null; // Track where the divider is placed
 
@@ -26,13 +10,6 @@ let tasks = [];
             renderTasks();
           })
           .catch((error) => console.error("Error fetching tasks:", error));
-
-        // Handle dragging for the divider
-        const divider = document.getElementById("divider");
-        divider.addEventListener("dragstart", handleDragStart);
-        divider.addEventListener("dragover", handleDragOver);
-        divider.addEventListener("drop", handleDrop);
-        divider.addEventListener("dragend", handleDragEnd);
       });
 
       function toggleCompletedTasks() {
@@ -262,7 +239,12 @@ let tasks = [];
       }
 
       function renderMarkdown() {
-        const markdownInput = document.getElementById("markdown-input").value;
+          const markdownInput = document.getElementById("markdown-input").value;
+          const converter = new showdown.Converter({
+            tasklists: true
+          })
+          converter.setFlavor('github')
+
         const html = converter.makeHtml(markdownInput); // Convert markdown to HTML
         document.getElementById("markdown-preview").innerHTML = html; // Render the HTML
       }
