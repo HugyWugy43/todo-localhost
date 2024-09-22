@@ -11,12 +11,20 @@ document.addEventListener("DOMContentLoaded", () => {
     .catch((error) => console.error("Error fetching tasks:", error));
 });
 
-function toggleCompletedTasks() {
-  const completedContainer = document.getElementById(
-    "completed-tasks-container",
-  );
-  completedContainer.style.display =
-    completedContainer.style.display === "none" ? "block" : "none";
+// Function to show the completed tasks section
+function showCompletedTasks() {
+  document
+    .getElementById("completed-tasks-container")
+    .classList.remove("hidden");
+  document.getElementById("show-completed").classList.add("hidden");
+  document.getElementById("hide-completed").classList.remove("hidden");
+}
+
+// Function to hide the completed tasks section
+function hideCompletedTasks() {
+  document.getElementById("completed-tasks-container").classList.add("hidden");
+  document.getElementById("hide-completed").classList.add("hidden");
+  document.getElementById("show-completed").classList.remove("hidden");
 }
 function saveTasksToBackend() {
   fetch("/tasks", {
@@ -92,70 +100,55 @@ function renderTasks() {
   otherTasksList.innerHTML = ""; // Clear other tasks
   completedTasksList.innerHTML = ""; // Clear completed tasks
 
+  let hasCompletedTasks = false; // Track if there are any completed tasks
+
   tasks.forEach((task, index) => {
     const taskItem = document.createElement("li");
-    taskItem.setAttribute("data-index", index); // Store the index for drag/drop functionality
+    taskItem.setAttribute("data-index", index);
     taskItem.draggable = true; // Make the task draggable
-
-    // Attach drag and drop event listeners
-    taskItem.addEventListener("dragstart", handleDragStart);
-    taskItem.addEventListener("dragover", handleDragOver);
-    taskItem.addEventListener("drop", handleDrop);
-    taskItem.addEventListener("dragend", handleDragEnd);
 
     const dueDateClass = getDueDateClass(task.dueDate);
 
-    // Conditionally show completed date if the task is marked as completed
     const completedDateText =
       task.completed && task.completedDate
         ? `<span class="completed-date">(Completed on ${task.completedDate})</span>`
         : "";
 
-    // Display task with edit mode or normal mode
-    if (index === editingIndex) {
-      // If editing, display input fields for name, date, and category
-      taskItem.innerHTML = `
-                <div class="task-info">
-                    <input type="text" id="edit-name-${index}" value="${task.name}">
-                    <input type="date" id="edit-date-${index}" value="${task.dueDate}">
-                    <select id="edit-category-${index}">
-                        <option value="Work" ${task.category === "Work" ? "selected" : ""}>Work</option>
-                        <option value="Personal" ${task.category === "Personal" ? "selected" : ""}>Personal</option>
-                        <option value="Other" ${task.category === "Other" ? "selected" : ""}>Other</option>
-                    </select>
-                </div>
-                <button onclick="saveTask(${index})">Save</button>
-            `;
-    } else {
-      // Normal display mode
-      taskItem.innerHTML = `
-                <div class="task-info">
-                    <input type="checkbox" ${task.completed ? "checked" : ""} onclick="toggleTask(${index})">
-                    <label>
-                        ${task.name}
-                        <span class="category">Category: ${task.category} ${completedDateText}</span>
-                    </label>
-                </div>
-                <span class="due-date ${dueDateClass}">Due: ${task.dueDate}</span>
-                <button class="remove-btn" onclick="removeTask(${index})">Remove</button>
-                <button onclick="editTask(${index})">Edit</button>
-                ${
-                  task.isCurrent
-                    ? `<button onclick="moveToOther(${index})">Other</button>`
-                    : `<button onclick="moveToCurrent(${index})">Select</button>`
-                }
-            `;
-    }
+    // Normal display mode for task
+    taskItem.innerHTML = `
+      <div class="task-info">
+          <input type="checkbox" ${task.completed ? "checked" : ""} onclick="toggleTask(${index})">
+          <label>
+              ${task.name}
+              <span class="category">Category: ${task.category} ${completedDateText}</span>
+          </label>
+      </div>
+      <span class="due-date ${dueDateClass}">Due: ${task.dueDate}</span>
+      <button class="remove-btn" onclick="removeTask(${index})">Remove</button>
+      <button onclick="editTask(${index})">Edit</button>
+      ${task.isCurrent ? `<button onclick="moveToOther(${index})">Other</button>` : `<button onclick="moveToCurrent(${index})">Select</button>`}
+    `;
 
-    // Append the task to the right list
     if (task.completed) {
-      completedTasksList.appendChild(taskItem); // Add to completed tasks
+      hasCompletedTasks = true; // There is at least one completed task
+      completedTasksList.appendChild(taskItem);
     } else if (task.isCurrent) {
-      currentTasksList.appendChild(taskItem); // Add to current tasks
+      currentTasksList.appendChild(taskItem);
     } else {
-      otherTasksList.appendChild(taskItem); // Add to other tasks
+      otherTasksList.appendChild(taskItem);
     }
   });
+
+  const showCompletedBtn = document.getElementById("show-completed");
+
+  // Enable/disable the "Show Completed" button based on whether there are completed tasks
+  if (hasCompletedTasks) {
+    showCompletedBtn.disabled = false;
+    showCompletedBtn.textContent = "Show Completed";
+  } else {
+    showCompletedBtn.disabled = true;
+    showCompletedBtn.textContent = "No Completed Tasks";
+  }
 }
 function removeTask(index) {
   tasks.splice(index, 1);
@@ -185,8 +178,7 @@ function sortTasksByDate() {
   saveTasksToBackend(); // Update backend after sorting
 }
 
-function getDueDateClass(dueDate) {
-  const today = new Date();
+function getDueDateClass(dueDate, today = new Date()) {
   const date = new Date(dueDate);
   const differenceInTime = date.getTime() - today.getTime();
   const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24));
@@ -235,14 +227,84 @@ function handleDrop(event) {
 function handleDragEnd(event) {
   draggedTaskIndex = null; // Reset the dragged task index
 }
+let isEditing = false; // Track whether the user is in edit mode
 
-function renderMarkdown() {
-  const markdownInput = document.getElementById("markdown-input").value;
-  const converter = new showdown.Converter({
-    tasklists: true,
+// Load and render the notes on page load
+document.addEventListener("DOMContentLoaded", () => {
+  fetch("/notes")
+    .then((response) => response.json())
+    .then((data) => {
+      const markdown = data.notes;
+      renderMarkdown(markdown);
+    });
+});
+const converter = new showdown.Converter({
+  tasklists: true,
+});
+converter.setFlavor("github");
+// Function to render the markdown or show the textarea
+function renderMarkdown(markdown) {
+  const container = document.getElementById("markdown-container");
+
+  if (!isEditing) {
+    // Show Markdown preview
+
+    const html = converter.makeHtml(markdown);
+    container.innerHTML = html;
+
+    // Toggle buttons
+    document.getElementById("edit-notes").classList.remove("hidden");
+    document.getElementById("done-editing").classList.add("hidden");
+  } else {
+    // Show textarea for editing
+    container.innerHTML = `<textarea id="markdown-input">${markdown}</textarea>`;
+
+    // Toggle buttons
+    document.getElementById("edit-notes").classList.add("hidden");
+    document.getElementById("done-editing").classList.remove("hidden");
+  }
+}
+
+// Function to start editing the notes
+function editNotes() {
+  // Fetch the notes again
+  fetch("/notes")
+    .then((response) => response.json())
+    .then((data) => {
+      const markdown = data.notes;
+      isEditing = true; // Switch to edit mode
+      renderMarkdown(markdown);
+    });
+
+  // Auto-save the notes as the user types
+  const markdownContainer = document.getElementById("markdown-container");
+  markdownContainer.addEventListener("input", function () {
+    const content = document.getElementById("markdown-input").value;
+    fetch("/notes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ notes: content }),
+    });
   });
-  converter.setFlavor("github");
+}
 
-  const html = converter.makeHtml(markdownInput); // Convert markdown to HTML
-  document.getElementById("markdown-preview").innerHTML = html; // Render the HTML
+// Function to stop editing and show the rendered notes
+function doneEditing() {
+  const markdownInput = document.getElementById("markdown-input");
+  const markdown = markdownInput.value;
+
+  // Save the edited notes
+  fetch("/notes", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ notes: markdown }),
+  }).then(() => {
+    // Switch back to preview mode
+    isEditing = false;
+    renderMarkdown(markdown);
+  });
 }
