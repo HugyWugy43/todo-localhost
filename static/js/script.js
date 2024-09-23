@@ -19,7 +19,11 @@ function showCompletedTasks() {
   document.getElementById("show-completed").classList.add("hidden");
   document.getElementById("hide-completed").classList.remove("hidden");
 }
-
+function clearForm() {
+  document.getElementById("task-name").value = "";
+  document.getElementById("task-date").value = "";
+  document.getElementById("task-category").value = "";
+}
 // Function to hide the completed tasks section
 function hideCompletedTasks() {
   document.getElementById("completed-tasks-container").classList.add("hidden");
@@ -114,20 +118,37 @@ function renderTasks() {
         ? `<span class="completed-date">(Completed on ${task.completedDate})</span>`
         : "";
 
-    // Normal display mode for task
-    taskItem.innerHTML = `
-      <div class="task-info">
+    // Show editable fields if the task is being edited
+    if (index === editingIndex) {
+      taskItem.innerHTML = `
+        <div class="task-info">
+          <input type="text" id="edit-name-${index}" value="${task.name}">
+          <input type="date" id="edit-date-${index}" value="${task.dueDate}">
+          <select id="edit-category-${index}">
+              <option value="Work" ${task.category === "Work" ? "selected" : ""}>Work</option>
+              <option value="Personal" ${task.category === "Personal" ? "selected" : ""}>Personal</option>
+              <option value="Other" ${task.category === "Other" ? "selected" : ""}>Other</option>
+          </select>
+          <button onclick="saveTask(${index})">Save</button>
+          <button onclick="cancelEdit()">Cancel</button>
+        </div>
+      `;
+    } else {
+      // Normal display mode for task
+      taskItem.innerHTML = `
+        <div class="task-info">
           <input type="checkbox" ${task.completed ? "checked" : ""} onclick="toggleTask(${index})">
           <label>
-              ${task.name}
-              <span class="category">Category: ${task.category} ${completedDateText}</span>
+            ${task.name}
+            <span class="category">Category: ${task.category} ${completedDateText}</span>
           </label>
-      </div>
-      <span class="due-date ${dueDateClass}">Due: ${task.dueDate}</span>
-      <button class="remove-btn" onclick="removeTask(${index})">Remove</button>
-      <button onclick="editTask(${index})">Edit</button>
-      ${task.isCurrent ? `<button onclick="moveToOther(${index})">Other</button>` : `<button onclick="moveToCurrent(${index})">Select</button>`}
-    `;
+        </div>
+        <span class="due-date ${dueDateClass}">Due: ${task.dueDate}</span>
+        <button class="remove-btn" onclick="removeTask(${index})">Remove</button>
+        <button onclick="editTask(${index})">Edit</button>
+        ${task.isCurrent ? `<button onclick="moveToOther(${index})">Other</button>` : `<button onclick="moveToCurrent(${index})">Select</button>`}
+      `;
+    }
 
     if (task.completed) {
       hasCompletedTasks = true; // There is at least one completed task
