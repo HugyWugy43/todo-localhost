@@ -7,9 +7,9 @@ from datetime import datetime
 app = Flask(__name__)
 
 # Paths to the JSON and YAML files
-TASKS_FILE = "tasks.json"
-CATEGORIES_FILE = "categories.yaml"
-
+TASKS_FILE = "data/tasks.json"
+CATEGORIES_FILE = "data/categories.yaml"
+NOTES_FILE = "data/notes.md"
 # Ensure the tasks.json file exists
 if not os.path.exists(TASKS_FILE):
     with open(TASKS_FILE, "w") as f:
@@ -36,18 +36,15 @@ def load_categories():
     return data.get("categories", [])
 
 
-# Path to the Markdown notes file
-NOTES_FILE = "notes.md"
-
-
-# Endpoint to get notes
 @app.route("/notes", methods=["GET"])
 def get_notes():
-    notes = load_notes()
-    return jsonify({"notes": notes})
+    try:
+        notes = load_notes()  # Use the load_notes function
+        return jsonify({"notes": notes}), 200
+    except IOError as e:
+        return jsonify({"error": "Failed to read notes file"}), 500
 
 
-# Ensure the notes.md file exists
 if not os.path.exists(NOTES_FILE):
     with open(NOTES_FILE, "w") as file:
         file.write("")  # Initialize with empty content
@@ -57,14 +54,15 @@ if not os.path.exists(NOTES_FILE):
 def load_notes():
     if os.path.exists(NOTES_FILE):
         with open(NOTES_FILE, "r") as file:
-            return file.read()
-    return ""
+            content = file.read()
+            return content if content.strip() else ""  # Avoid returning undefined
+    return ""  # Return empty string if file doesn't exist
 
 
-# Save notes to the file
 def save_notes(content):
-    with open(NOTES_FILE, "w") as file:
-        file.write(content)
+    if content and content.strip():  # Only save non-empty, valid content
+        with open(NOTES_FILE, "w") as file:
+            file.write(content)
 
 
 # Endpoint to save notes

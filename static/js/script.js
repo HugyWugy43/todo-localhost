@@ -234,9 +234,10 @@ document.addEventListener("DOMContentLoaded", () => {
   fetch("/notes")
     .then((response) => response.json())
     .then((data) => {
-      const markdown = data.notes;
+      const markdown = data.notes || ""; // Handle undefined or empty values
       renderMarkdown(markdown);
-    });
+    })
+    .catch((error) => console.error("Error fetching notes:", error));
 });
 const converter = new showdown.Converter({
   tasklists: true,
@@ -248,7 +249,6 @@ function renderMarkdown(markdown) {
 
   if (!isEditing) {
     // Show Markdown preview
-
     const html = converter.makeHtml(markdown);
     container.innerHTML = html;
 
@@ -256,7 +256,7 @@ function renderMarkdown(markdown) {
     document.getElementById("edit-notes").classList.remove("hidden");
     document.getElementById("done-editing").classList.add("hidden");
   } else {
-    // Show textarea for editing
+    // Show textarea for editing and populate it with the markdown content
     container.innerHTML = `<textarea id="markdown-input">${markdown}</textarea>`;
 
     // Toggle buttons
@@ -271,22 +271,24 @@ function editNotes() {
   fetch("/notes")
     .then((response) => response.json())
     .then((data) => {
-      const markdown = data.notes;
-      isEditing = true; // Switch to edit mode
+      const markdown = data.notes || "";
+      isEditing = true;
       renderMarkdown(markdown);
-    });
-
-  // Auto-save the notes as the user types
+    })
+    .catch((error) => console.error("Error fetching notes:", error));
   const markdownContainer = document.getElementById("markdown-container");
   markdownContainer.addEventListener("input", function () {
     const content = document.getElementById("markdown-input").value;
-    fetch("/notes", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ notes: content }),
-    });
+    if (content.trim()) {
+      // Ensure non-empty value
+      fetch("/notes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ notes: content }),
+      });
+    }
   });
 }
 

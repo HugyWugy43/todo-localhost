@@ -1,4 +1,3 @@
-
 # Todo List with Notes
 
 ## Overview
@@ -81,35 +80,45 @@ This is a web-based **Todo List** application that allows users to:
    cd todo-list-with-notes
    ```
 
-2. Build the Docker image:
+2. Build and start the containerized app with Docker Compose:
 
    ```bash
-   docker build -t todo-app .
+   docker-compose up --build .
    ```
 
-3. Run the Docker container:
+This will create and start the container, exposing the app on port 4200. You can access the app in your browser at `http://localhost:4200`.
 
-   ```bash
-   docker run -d -p 4200:4200 --name todo-app todo-app
-   ```
+3. Stop the container:
 
-4. Open your browser and go to `http://localhost:4200` to access the app.
+```bash
+docker-compose down
+```
 
 ### File Structure
 
 ```bash
-├── app.py                   # Main Flask backend
-├── templates
-│   └── index.html           # Main HTML page for the app
+├── app.py # Main Flask backend
+├── docker-compose.yml # Docker Compose configuration
+├── Dockerfile # Docker configuration
+├── LICENSE # License file
+├── README.md # Documentation for the project
+├── requirements.txt # Python dependencies
+├── screenshot.png # Screenshot of the app
+├── notes.md # Stores Markdown notes
+├── data # Directory for persistent data
+│ ├── tasks.json # Stores task data persistently
+│ ├── categories.yaml # Stores task categories
+│ └── notes.md # Stores markdown notes in Docker
 ├── static
-│   ├── css
-│   │   └── style.css        # Styles for the app
-│   └── js
-│       └── script.js        # Frontend logic
-├── tasks.json               # Stores task data persistently
-├── categories.yaml          # Stores task categories
-├── README.md                # Documentation for the project
-└── requirements.txt         # Python dependencies
+│ ├── css
+│ │ └── style.css # Styles for the app
+│ ├── images
+│ │ └── favicon.png # Favicon for the app
+│ └── js
+│ └── script.js # Frontend logic
+├── templates
+│ └── index.html # Main HTML page for the app
+
 ```
 
 ### JSON and YAML File Description
@@ -157,6 +166,9 @@ Contributions are welcome! If you'd like to report issues or request new feature
    ```bash
    git checkout -b feature-new-task
    ```
+
+````
+
 3. Make your changes and commit:
    ```bash
    git commit -m "Add new task feature"
@@ -176,3 +188,4 @@ Contributions are welcome! If you'd like to report issues or request new feature
 ## License
 
 This project is licensed under the MIT License. See the `LICENSE` file for details.
+````

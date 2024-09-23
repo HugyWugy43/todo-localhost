@@ -1,0 +1,8 @@
+version: "3"
+services:
+  todo-app:
+    build: .
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./data:/app/data # Mount the data directory
