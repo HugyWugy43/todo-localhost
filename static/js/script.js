@@ -39,7 +39,6 @@ function saveTasksToBackend() {
     body: JSON.stringify({ tasks: tasks }), // Send updated tasks to backend
   })
     .then((response) => response.json())
-    .then((data) => console.log("Tasks saved:", data))
     .catch((error) => console.error("Error saving tasks:", error));
 }
 
@@ -95,22 +94,34 @@ function saveTask(index) {
   // Save the updated tasks to the backend
   saveTasksToBackend(); // Persist changes to the backend
 }
+
 function renderTasks() {
   const currentTasksList = document.getElementById("current-tasks-list");
   const otherTasksList = document.getElementById("other-tasks-list");
-  const completedTasksList = document.getElementById("completed-tasks-list");
-
-  currentTasksList.innerHTML = ""; // Clear current tasks
-  otherTasksList.innerHTML = ""; // Clear other tasks
-  completedTasksList.innerHTML = ""; // Clear completed tasks
-
+  const completedTasksList = document.getElementById("completed-tasks-list"); // Clear lists
+  currentTasksList.innerHTML = "";
+  otherTasksList.innerHTML = "";
+  completedTasksList.innerHTML = "";
   let hasCompletedTasks = false; // Track if there are any completed tasks
 
   tasks.forEach((task, index) => {
     const taskItem = document.createElement("li");
     taskItem.setAttribute("data-index", index);
-    taskItem.draggable = true; // Make the task draggable
+    taskItem.classList.add("task-item");
+    taskItem.draggable = true;
 
+    taskItem.addEventListener("dragstart", handleDragStart);
+    taskItem.addEventListener("dragover", handleDragOver);
+    taskItem.addEventListener("dragleave", handleDragLeave);
+    taskItem.addEventListener("drop", handleDrop);
+
+    taskItem.innerHTML = `<div>${task.name}</div>`;
+
+    if (task.isCurrent) {
+      currentTasksList.appendChild(taskItem); // Append to current tasks
+    } else {
+      otherTasksList.appendChild(taskItem); // Append to other tasks
+    }
     const dueDateClass = getDueDateClass(task.dueDate);
 
     const completedDateText =
@@ -215,38 +226,83 @@ function getDueDateClass(dueDate, today = new Date()) {
   }
 }
 
-// Store the index of the task being dragged
 let draggedTaskIndex = null;
+let currentTargetIndex = null; // Track the current target during drag
 
 function handleDragStart(event) {
-  draggedTaskIndex = event.target.getAttribute("data-index"); // Get the dragged task's index
+  draggedTaskIndex = event.target.getAttribute("data-index");
   event.dataTransfer.effectAllowed = "move";
+  event.target.classList.add("dragging"); // Optional: style the dragged element
 }
-
-// Allow dragging over the target task
 function handleDragOver(event) {
-  event.preventDefault(); // Necessary to allow dropping
-  event.dataTransfer.dropEffect = "move";
+  event.preventDefault(); // Allow the drop
+
+  const taskItem = event.target.closest("li.task-item");
+  if (!taskItem) return;
+
+  const targetListId = taskItem.closest("ul").id;
+  const draggedTask = tasks[draggedTaskIndex];
+  const originalListId = draggedTask.isCurrent
+    ? "current-tasks-list"
+    : "other-tasks-list";
+
+  // If the task is being dragged into an invalid list, apply invalid-drop class
+  if (targetListId !== originalListId) {
+    taskItem.classList.add("invalid-drop");
+  } else {
+    taskItem.classList.add("drag-over");
+  }
 }
 
-// Handle the drop event, update the order
+function handleDragLeave(event) {
+  const taskItem = event.target.closest("li.task-item");
+  if (taskItem) {
+    taskItem.classList.remove("drag-over");
+    taskItem.classList.remove("invalid-drop"); // Remove invalid drop feedback
+  }
+}
 function handleDrop(event) {
   event.preventDefault();
-  const targetIndex = event.target.getAttribute("data-index"); // Get the index of the drop target
+
+  const taskItem = event.target.closest("li.task-item");
+  if (!taskItem) return;
+
+  const targetIndex = taskItem.getAttribute("data-index");
+  const targetListId = taskItem.closest("ul").id; // Get the ID of the list being dropped into
+
+  const draggedTask = tasks[draggedTaskIndex];
+
+  // Get the original list of the dragged task
+  const originalListId = draggedTask.isCurrent
+    ? "current-tasks-list"
+    : "other-tasks-list";
+
+  // Prevent dragging between different task lists
+  if (targetListId !== originalListId) {
+    return; // Prevent dropping into a different list
+  }
 
   if (draggedTaskIndex !== null && targetIndex !== null) {
-    // Move the dragged task to the new position in the same list
-    const draggedTask = tasks.splice(draggedTaskIndex, 1)[0]; // Remove the dragged task
-    tasks.splice(targetIndex, 0, draggedTask); // Insert at the new position
+    // Move the dragged task to the new position within the same list
+    const task = tasks.splice(draggedTaskIndex, 1)[0];
+    tasks.splice(targetIndex, 0, task);
 
     renderTasks(); // Re-render tasks in new order
     saveTasksToBackend(); // Persist the updated task order
   }
-}
 
-// Reset the dragging state
+  // Clean up drag-over classes
+  document.querySelectorAll("li.task-item").forEach((item) => {
+    item.classList.remove("drag-over");
+  });
+}
 function handleDragEnd(event) {
-  draggedTaskIndex = null; // Reset the dragged task index
+  // Reset everything when the drag ends
+  draggedTaskIndex = null;
+  currentTargetIndex = null;
+  document
+    .querySelectorAll(".drag-over")
+    .forEach((el) => el.classList.remove("drag-over"));
 }
 let isEditing = false; // Track whether the user is in edit mode
 

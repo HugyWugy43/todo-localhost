@@ -43,8 +43,11 @@ ul:not(#markdown-container ul) {
   list-style-type: none;
   padding: 0;
 }
-
-li:not(#markdown-container li) {
+.invalid-drop {
+  background-color: #ffcccc; /* Red background for invalid drop */
+}
+/* Specific task li elements */
+li.task-item {
   display: flex;
   justify-content: space-between; /* Ensure space between task info and due date */
   align-items: center;
@@ -53,8 +56,24 @@ li:not(#markdown-container li) {
   background: #f9f9f9;
   border: 1px solid #ddd;
   border-radius: 5px;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
 }
 
+/* Drag over style */
+li.task-item.drag-over {
+  border: 2px dashed #007bff;
+  background-color: #f0f0f0;
+}
+
+.dragging {
+  opacity: 0.5; /* Make the dragged task semi-transparent */
+}
+
+.drag-over {
+  transform: translateY(10px); /* Add a small shift to indicate hover */
+}
 .task-info {
   display: flex;
   align-items: center; /* Align checkbox and task name on the same line */
@@ -111,7 +130,10 @@ input[type="checkbox"] {
 .form-group {
   margin-bottom: 20px;
 }
-
+..drag-over {
+  border: 2px dashed #007bff !important; /* Ensure the border is applied */
+  background-color: #f0f0f0 !important; /* Ensure the background color is applied */
+}
 .form-group input,
 .form-group select {
   padding: 10px;
