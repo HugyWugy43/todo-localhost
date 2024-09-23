@@ -154,8 +154,7 @@ docker-compose down
    - After making changes, click **Save** to update the task.
 
 6. **Markdown Notes**:
-   - Use the Markdown editor at the bottom of the page to add notes.
-   - Click **Render Notes** to view the formatted Markdown below the editor.
+   - Use the Markdown editor at the bottom of the page to add notes and render them on the page.
 
 ## Contributing
 
@@ -168,8 +167,6 @@ Contributions are welcome! If you'd like to report issues or request new feature
    ```bash
    git checkout -b feature-new-task
    ```
-
-````
 
 3. Make your changes and commit:
    ```bash
