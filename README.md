@@ -22,7 +22,9 @@ This is a web-based **Todo List** application that allows users to:
 
 ## Screenshots
 
-![Todo App Screenshot](screenshot.png)
+![Todo App Screenshot](screenshots/full.png)
+![Edit Notes](screenshots/edit_notes.png)
+![Error](screenshots/warning.png)
 
 ## Technologies Used
 
