@@ -15,56 +15,61 @@
     </header>
 
     <div class="container">
-  <div class="tasks-and-notes">
-    <div class="tasks-section">
-      <h2>Tasks</h2>
-      <div class="form-group">
-        <input type="text" id="task-name" placeholder="Task Name" />
-        <input type="date" id="task-date" />
-        <select id="task-category">
-          {% for category in categories %}
-          <option value="{{ category }}">{{ category }}</option>
-          {% endfor %}
-        </select>
-        <button class="sort-btn" onclick="addTask()">Add Task</button>
-        <button class="sort-btn" onclick="sortTasksByDate()">
-          Sort by Due Date
-        </button>
+      <div class="tasks-and-notes">
+        <div class="tasks-section">
+          <h2>Tasks</h2>
+          <div class="form-group">
+            <input type="text" id="task-name" placeholder="Task Name" />
+            <input type="date" id="task-date" />
+            <select id="task-category">
+              {% for category in categories %}
+              <option value="{{ category }}">{{ category }}</option>
+              {% endfor %}
+            </select>
+            <button class="sort-btn" onclick="addTask()">Add Task</button>
+            <button class="sort-btn" onclick="sortTasksByDate()">
+              Sort by Due Date
+            </button>
+          </div>
+          <h3>Current Tasks</h3>
+          <ul id="current-tasks-list">
+            <!-- Current tasks will be rendered here -->
+          </ul>
+
+          <h3>Other Tasks</h3>
+          <ul id="other-tasks-list">
+            <!-- Other tasks will be rendered here -->
+          </ul>
+
+          <h3>
+            Completed Tasks
+            <button id="show-completed" onclick="showCompletedTasks()">
+              Show Completed
+            </button>
+            <button
+              id="hide-completed"
+              class="hidden"
+              onclick="hideCompletedTasks()"
+            >
+              Hide Completed
+            </button>
+          </h3>
+          <div id="completed-tasks-container">
+            <ul id="completed-tasks-list">
+              <!-- Completed tasks will be rendered here -->
+            </ul>
+          </div>
+        </div>
+
+        <div class="notes-section">
+          <h1>Notes</h1>
+          <div id="markdown-container"></div>
+          <button id="edit-notes" onclick="editNotes()">Edit Notes</button>
+          <button id="done-editing" class="hidden" onclick="doneEditing()">
+            Done
+          </button>
+        </div>
       </div>
-      <h3>Current Tasks</h3>
-      <ul id="current-tasks-list">
-        <!-- Current tasks will be rendered here -->
-      </ul>
-
-      <h3>Other Tasks</h3>
-      <ul id="other-tasks-list">
-        <!-- Other tasks will be rendered here -->
-      </ul>
-
-      <h3>
-        Completed Tasks
-        <button id="show-completed" onclick="showCompletedTasks()">
-          Show Completed
-        </button>
-        <button id="hide-completed" class="hidden" onclick="hideCompletedTasks()">
-          Hide Completed
-        </button>
-      </h3>
-      <div id="completed-tasks-container">
-        <ul id="completed-tasks-list">
-          <!-- Completed tasks will be rendered here -->
-        </ul>
-      </div>
-    </div>
-
-    <div class="notes-section">
-      <h1>Notes</h1>
-      <div id="markdown-container"></div>
-      <button id="edit-notes" onclick="editNotes()">Edit Notes</button>
-      <button id="done-editing" class="hidden" onclick="doneEditing()">Done</button>
-    </div>
-  </div>
-</div>
     </div>
   </body>
 </html>

@@ -131,19 +131,30 @@ function renderTasks() {
 
     // Show editable fields if the task is being edited
     if (index === editingIndex) {
+      const taskCategorySelect = document.getElementById("task-category"); // Original select element
+
+      // Dynamically generate category options from the original select element
+      let categoryOptions = Array.from(taskCategorySelect.options)
+        .map(
+          (option) =>
+            `<option value="${option.value}" ${
+              task.category === option.value ? "selected" : ""
+            }>${option.text}</option>`,
+        )
+        .join(""); // Join the options into a single string
+
+      // Update the innerHTML for the task item
       taskItem.innerHTML = `
-        <div class="task-info">
-          <input type="text" id="edit-name-${index}" value="${task.name}">
-          <input type="date" id="edit-date-${index}" value="${task.dueDate}">
-          <select id="edit-category-${index}">
-              <option value="Work" ${task.category === "Work" ? "selected" : ""}>Work</option>
-              <option value="Personal" ${task.category === "Personal" ? "selected" : ""}>Personal</option>
-              <option value="Other" ${task.category === "Other" ? "selected" : ""}>Other</option>
-          </select>
-          <button onclick="saveTask(${index})">Save</button>
-          <button onclick="cancelEdit()">Cancel</button>
-        </div>
-      `;
+    <div class="task-info">
+      <input type="text" id="edit-name-${index}" value="${task.name}">
+      <input type="date" id="edit-date-${index}" value="${task.dueDate}">
+      <select id="edit-category-${index}">
+        ${categoryOptions} <!-- Dynamically generated options -->
+      </select>
+      <button onclick="saveTask(${index})">Save</button>
+      <button onclick="cancelEdit()">Cancel</button>
+    </div>
+  `;
     } else {
       // Normal display mode for task
       taskItem.innerHTML = `
@@ -170,7 +181,10 @@ function renderTasks() {
       otherTasksList.appendChild(taskItem);
     }
   });
-
+  function cancelEdit() {
+    editingIndex = null; // Clear the editing state
+    renderTasks(); // Re-render tasks to exit edit mode
+  }
   const showCompletedBtn = document.getElementById("show-completed");
 
   // Enable/disable the "Show Completed" button based on whether there are completed tasks
